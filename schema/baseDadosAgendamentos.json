@@ -1,0 +1,16 @@
+{
+    "agendamentos": [
+        { 
+            "id_medico": 1,
+            "id_usuario": 100,
+            "nome_pet": "Rex",
+            "data_hora": "2025-11-20T10:00:00"
+        },
+        {
+            "id_medico": 2,
+            "id_usuario": 101,
+            "nome_pet": "Mimi",
+            "data_hora": "2025-11-20T14:00:00"
+        }
+    ]
+}

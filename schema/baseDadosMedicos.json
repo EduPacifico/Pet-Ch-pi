@@ -1,0 +1,25 @@
+{ 
+    "medicos": [
+        {
+            "id": 1,
+            "nome": "Dr. Marlon Ferrari",
+            "especialidade": "Clínico Geral",
+            "email_notificacao": "marlon.ferrari@petchopi.com",
+            "horario_trabalho": "09:00-17:00"
+        },
+        {
+            "id": 2,
+            "nome": "Dra. Ana Silva",
+            "especialidade": "Cardiologia",
+            "email_notificacao": "ana.silva@petchopi.com",
+            "horario_trabalho": "10:00-18:00"
+        },
+        {
+            "id": 3,
+            "nome": "Dr. João Vet",
+            "especialidade": "Clínico Geral",
+            "email_notificacao": "joao.vet@petchopi.com",
+            "horario_trabalho": "08:00-16:00"
+        }
+    ]
+}
