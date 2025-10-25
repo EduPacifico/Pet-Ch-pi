@@ -7,7 +7,8 @@ SCHEMA_AGENDAMENTOS = "./schema/baseDadosAgendamentos.json"
 def consultarDisponibilidade(especialidade_desejada, data_desejada_str):
     '''
     Verifica a disponibilidade de médicos por especialidade em uma data.
-    Retorna o primeiro horário livre (slot de 1h) encontrado.
+    Retorna o PRIMEIRO horário livre (slot de 1h) encontrado, 
+    considerando o horário MAIS CEDO entre TODOS os médicos.
     '''
     
     try:
@@ -33,8 +34,15 @@ def consultarDisponibilidade(especialidade_desejada, data_desejada_str):
 
     agendamentos_marcados = set()
     for ag in dadosAgendamentos.get('agendamentos', []):
-        agendamentos_marcados.add( (ag['id_medico'], ag['data_hora']) )
+        try:
+            ag_data = datetime.fromisoformat(ag['data_hora']).date()
+            if ag_data == data_obj:
+                agendamentos_marcados.add( (ag['id_medico'], ag['data_hora']) )
+        except (ValueError, TypeError):
+            continue
 
+    slots_livres = []
+    
     for medico in medicos_da_especialidade:
         try:
             inicio_str, fim_str = medico['horario_trabalho'].split('-')
@@ -47,13 +55,10 @@ def consultarDisponibilidade(especialidade_desejada, data_desejada_str):
                 slot_iso = slot_datetime.isoformat()
                 
                 if (medico['id'], slot_iso) not in agendamentos_marcados:
-                    return {
-                        "status": 200,
-                        "mensagem": "Horário disponível encontrado.",
-                        "medico": medico['nome'],
-                        "especialidade": medico['especialidade'],
-                        "horario_disponivel": slot_iso
-                    }
+                    slots_livres.append({
+                        "horario_iso": slot_iso,
+                        "medico": medico
+                    })
                 
                 hora_atual += 1
 
@@ -61,13 +66,26 @@ def consultarDisponibilidade(especialidade_desejada, data_desejada_str):
             print(f"(Erro) Ao processar horário do Dr. {medico['nome']}: {e}")
             continue
             
+    if not slots_livres:
+        return {
+            "status": 404,
+            "mensagem": "Nenhum horário disponível para esta especialidade na data selecionada."
+        }
+
+    slots_livres.sort(key=lambda x: x['horario_iso'])
+    
+    melhor_slot = slots_livres[0]
+    
     return {
-        "status": 404,
-        "mensagem": "Nenhum horário disponível para esta especialidade na data selecionada."
+        "status": 200,
+        "mensagem": "Horário disponível encontrado.",
+        "medico": melhor_slot['medico']['nome'],
+        "especialidade": melhor_slot['medico']['especialidade'],
+        "horario_disponivel": melhor_slot['horario_iso']
     }
 
 if __name__ == "__main__":
-    print("\n--- Testando EXTRA: Consulta de Disponibilidade ---")
+    print("\n--- Testando EXTRA: Consulta de Disponibilidade (Lógica Refatorada) ---")
     
     print("\nBuscando 'Clínico Geral' em 2025-11-20...")
     dispo_cg = consultarDisponibilidade("Clínico Geral", "2025-11-20")
